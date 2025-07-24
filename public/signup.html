@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up | College Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #cce3ff, #e0f2fe);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      max-width: 450px;
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #1d4ed8;
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-top: 15px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .captcha-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .captcha-box {
+      background: #2563eb;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background: #1e40af;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1c39a1;
+    }
+    .message {
+      text-align: center;
+      color: red;
+      margin-top: 10px;
+    }
+    p {
+      text-align: center;
+      margin-top: 15px;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Create Account</h2>
+    <form id="signupForm">
+      <label>Email</label>
+      <input type="email" id="email" required />
+      
+      <label>Password</label>
+      <input type="password" id="password" required />
+
+      <label>Role</label>
+      <select id="role" required>
+        <option value="">Select Role</option>
+        <option value="student">Student</option>
+        <option value="admin">Admin</option>
+      </select>
+
+      <label>CAPTCHA</label>
+      <div class="captcha-row">
+        <div class="captcha-box" id="captchaText">12345</div>
+        <input type="text" id="captchaInput" placeholder="Enter CAPTCHA" required />
+      </div>
+
+      <button type="submit">Sign Up</button>
+      <div class="message" id="message"></div>
+      <p>Already have an account? <a href="index.html">Login</a></p>
+    </form>
+  </div>
+
+  <footer>© All Rights Reserved to Gauri Kakad & Harsh Jadhao</footer>
+
+  <script>
+    function generateCaptcha() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = '';
+      for (let i = 0; i < 5; i++) {
+        code += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return code;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const captchaText = document.getElementById("captchaText");
+      const captchaInput = document.getElementById("captchaInput");
+      const signupForm = document.getElementById("signupForm");
+      const message = document.getElementById("message");
+      let currentCaptcha = generateCaptcha();
+      captchaText.innerText = currentCaptcha;
+
+      signupForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const role = document.getElementById("role").value;
+
+        if (!email || !password || !role) {
+          message.innerText = "❌ All fields are required.";
+          return;
+        }
+
+        if (captchaInput.value.trim() !== currentCaptcha) {
+          message.innerText = "❌ CAPTCHA incorrect.";
+          currentCaptcha = generateCaptcha();
+          captchaText.innerText = currentCaptcha;
+          captchaInput.value = '';
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password, role })
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            alert("✅ Registered successfully!");
+            window.location.href = "index.html";
+          } else {
+            message.innerText = "❌ " + (data.message || data.error || "Something went wrong");
+
+          }
+        } catch {
+          message.innerText = "❌ Server error. Try again.";
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    body { margin: 0; background: #f7f9fc; color: #333; }
+    header {
+      background: linear-gradient(to right, #4f46e5, #3b82f6);
+      color: white; padding: 20px; text-align: center;
+      position: relative; font-size: 24px; font-weight: bold;
+    }
+    .logout-btn {
+      position: absolute; right: 20px; top: 20px;
+      background: #ef4444; color: white; border: none;
+      padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    }
+    .logout-btn:hover { background: #dc2626; }
+    .container {
+      max-width: 1200px; margin: 30px auto;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px; padding: 0 20px;
+    }
+    .card {
+      background: white; padding: 20px;
+      border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .card h3 { color: #4f46e5; margin-bottom: 10px; }
+    .card form { display: flex; flex-direction: column; }
+    .card input, .card select, .card textarea {
+      padding: 8px 10px; margin-bottom: 10px;
+      border: 1px solid #ccc; border-radius: 6px;
+    }
+    .card button {
+      padding: 10px; background: #4f46e5; color: white;
+      border: none; border-radius: 6px; cursor: pointer;
+    }
+    .card button:hover { background: #3b44cc; }
+    .profile-img {
+      max-width: 100px; border-radius: 50%; margin-bottom: 10px;
+    }
+    footer {
+      text-align: center; margin-top: 40px; padding: 15px;
+      font-size: 14px; background: #e0e7ff; color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    Welcome, Student
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </header>
+
+  <div class="container">
+
+    <!-- Extended Profile Form -->
+    <div class="card">
+      <h3>My Profile</h3>
+      <form id="profileForm" enctype="multipart/form-data">
+        <img id="profilePicPreview" class="profile-img" src="" alt="Profile" style="display:none;">
+        <input type="file" id="photo" accept="image/*" />
+        <input type="text" id="fullName" placeholder="Full Name" required />
+        <input type="text" id="phone" placeholder="Phone Number" />
+        <input type="email" id="emailDisplay" disabled />
+        <input type="date" id="dob" placeholder="Date of Birth" />
+        <input type="text" id="gender" placeholder="Gender" />
+        <input type="text" id="department" placeholder="Department" />
+        <input type="text" id="course" placeholder="Course Enrolled" />
+        <input type="text" id="nationality" placeholder="Nationality" />
+        <input type="text" id="bloodGroup" placeholder="Blood Group" />
+        <input type="text" id="emergencyContact" placeholder="Emergency Contact" />
+        <textarea id="address" placeholder="Full Address"></textarea>
+        <button type="submit">Save Profile</button>
+      </form>
+    </div>
+    <!-- Result Entry -->
+    <div class="card">
+      <h3>Submit Results</h3>
+      <form id="resultForm">
+        <input type="text" id="subject" placeholder="Subject" required />
+        <input type="number" id="marks" placeholder="Marks" required />
+        <button type="submit">Save Marks</button>
+      </form>
+    </div>
+
+    <!-- Assignment Submit -->
+    <div class="card">
+      <h3>Submit Assignment</h3>
+      <form id="assignmentForm">
+        <input type="text" id="assignmentTitle" placeholder="Title" required />
+        <textarea id="assignmentLink" placeholder="Paste Link Here" rows="3"></textarea>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+
+    <!-- Attendance -->
+    <div class="card">
+      <h3>Attendance</h3>
+      <p id="attendanceInfo">Loading...</p>
+    </div>
+
+    <!-- Timetable -->
+    <div class="card">
+      <h3>Timetable</h3>
+      <div id="timetableInfo">Loading...</div>
+    </div>
+
+    <!-- Fees -->
+    <div class="card">
+      <h3>Fee Details</h3>
+      <p id="feesInfo">Loading...</p>
+    </div>
+
+    <!-- Notices -->
+    <div class="card">
+      <h3>Notice Board</h3>
+      <div id="notice-container">Loading notices...</div>
+    </div>
+
+    <!-- Leave Form -->
+    <div class="card">
+      <h3>Leave Application</h3>
+      <form id="leaveForm">
+        <input type="text" id="leaveName" placeholder="Your Name" required />
+        <input type="date" id="fromDate" required />
+        <input type="date" id="toDate" required />
+        <textarea id="leaveReason" placeholder="Reason for leave" rows="3" required></textarea>
+        <button type="submit">Submit Leave Request</button>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>© All Rights Reserved — Gauri Kakad & Harsh Jadhao</footer>
+
+  <script>
+    const email = localStorage.getItem("userEmail");
+
+    function logout() {
+      localStorage.clear();
+      alert("You have been logged out.");
+      window.location.href = "index.html";
+    }
+
+    // Load Notices
+    fetch("/api/notices")
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById("notice-container");
+        container.innerHTML = "";
+        data.forEach(n => {
+          container.innerHTML += `<p><strong>${n.title}</strong>: ${n.message}</p>`;
+        });
+      });
+
+    fetch(`/api/student/${email}/attendance`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("attendanceInfo").innerText =
+          `Present: ${data.daysPresent} / ${data.totalDays} (${data.attendance})`;
+      });
+
+    fetch(`/api/student/${email}/timetable`)
+      .then(res => res.json())
+      .then(data => {
+        let html = "";
+        data.timetable.forEach(day => {
+          html += `<strong>${day.day}:</strong> ${day.slots.join(', ')}<br>`;
+        });
+        document.getElementById("timetableInfo").innerHTML = html;
+      });
+
+    fetch(`/api/student/${email}/fees`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("feesInfo").innerText =
+          `Total: ₹${data.total}, Paid: ₹${data.paid}, Pending: ₹${data.pending}`;
+      });
+
+    document.getElementById("profileForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append("fullName", document.getElementById("fullName").value);
+      formData.append("phone", document.getElementById("phone").value);
+      formData.append("dob", document.getElementById("dob").value);
+      formData.append("gender", document.getElementById("gender").value);
+      formData.append("department", document.getElementById("department").value);
+      formData.append("course", document.getElementById("course").value);
+      formData.append("nationality", document.getElementById("nationality").value);
+      formData.append("bloodGroup", document.getElementById("bloodGroup").value);
+      formData.append("emergencyContact", document.getElementById("emergencyContact").value);
+      formData.append("address", document.getElementById("address").value);
+      formData.append("email", email);
+      if (document.getElementById("photo").files[0]) {
+        formData.append("photo", document.getElementById("photo").files[0]);
+      }
+
+      const res = await fetch(`/api/student/${email}/profile`, {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+      alert(data.message || "Profile updated");
+      loadProfile();
+    });
+
+    document.getElementById("resultForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const subject = document.getElementById("subject").value;
+      const marks = document.getElementById("marks").value;
+      const res = await fetch(`/api/student/${email}/results`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [subject]: marks })
+      });
+      const data = await res.json();
+      alert(data.message || "Marks saved");
+      loadMarks();
+    });
+
+    document.getElementById("assignmentForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.getElementById("assignmentTitle").value;
+      const link = document.getElementById("assignmentLink").value;
+      const res = await fetch(`/api/student/${email}/assignment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, link })
+      });
+      const data = await res.json();
+      alert(data.message || "Assignment submitted");
+    });
+
+    document.getElementById("leaveForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const body = {
+        name: document.getElementById("leaveName").value,
+        fromDate: document.getElementById("fromDate").value,
+        toDate: document.getElementById("toDate").value,
+        reason: document.getElementById("leaveReason").value
+      };
+      const res = await fetch(`/api/student/${email}/leave`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      alert(data.message || "Leave submitted");
+    });
+
+    async function loadProfile() {
+      const res = await fetch(`/api/student/${email}/profile`);
+      if (!res.ok) return;
+      const data = await res.json();
+      document.getElementById("fullName").value = data.fullName || "";
+      document.getElementById("phone").value = data.phone || "";
+      document.getElementById("dob").value = data.dob || "";
+      document.getElementById("gender").value = data.gender || "";
+      document.getElementById("department").value = data.department || "";
+      document.getElementById("course").value = data.course || "";
+      document.getElementById("nationality").value = data.nationality || "";
+      document.getElementById("bloodGroup").value = data.bloodGroup || "";
+      document.getElementById("emergencyContact").value = data.emergencyContact || "";
+      document.getElementById("address").value = data.address || "";
+      document.getElementById("emailDisplay").value = data.email || email;
+      if (data.photo) {
+        document.getElementById("profilePicPreview").src = data.photo;
+        document.getElementById("profilePicPreview").style.display = "block";
+      }
+    }
+
+    async function loadMarks() {
+      const res = await fetch(`/api/student/${email}/results`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const card = document.querySelector("#resultForm").parentElement;
+      card.innerHTML += "<h4>Saved Marks:</h4>";
+      for (let sub in data.marks) {
+        card.innerHTML += `<p>${sub}: ${data.marks[sub]}</p>`;
+      }
+    }
+
+    loadProfile();
+    loadMarks();
+  </script>
+</body>
+</html>

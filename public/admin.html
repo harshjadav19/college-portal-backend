@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    body { margin: 0; background: #f9fafc; color: #333; }
+    header {
+      background: linear-gradient(to right, #1e3a8a, #2563eb);
+      color: white; padding: 20px; text-align: center;
+      position: relative; font-size: 24px; font-weight: bold;
+    }
+    .logout-btn {
+      position: absolute; right: 20px; top: 20px;
+      background: #ef4444; color: white; border: none;
+      padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    }
+    .logout-btn:hover { background: #dc2626; }
+    .container {
+      max-width: 1200px; margin: 30px auto; padding: 0 20px;
+      display: flex; flex-direction: column; gap: 30px;
+    }
+    .card {
+      background: white; padding: 20px;
+      border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    .card h3 { margin-bottom: 15px; color: #1e3a8a; }
+    input, textarea {
+      padding: 8px; margin-bottom: 10px;
+      border: 1px solid #ccc; width: 100%; border-radius: 6px;
+    }
+    button {
+      padding: 10px; background: #2563eb; color: white;
+      border: none; border-radius: 6px; cursor: pointer; margin-top: 10px;
+    }
+    button:hover { background: #1e40af; }
+    table {
+      width: 100%; border-collapse: collapse; margin-top: 10px;
+    }
+    th, td {
+      padding: 10px; border: 1px solid #ccc; text-align: left;
+    }
+    .action-btn {
+      padding: 6px 10px; font-size: 14px; margin: 2px;
+    }
+    .profile-pic {
+      width: 60px; height: 60px; border-radius: 50%;
+    }
+    footer {
+      text-align: center; margin-top: 40px; padding: 15px;
+      font-size: 14px; background: #e0e7ff; color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    Admin Dashboard
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </header>
+
+  <div class="container">
+
+    <!-- Add Student -->
+    <div class="card">
+      <h3>Add Student</h3>
+      <form id="addStudentForm">
+        <input type="text" id="newName" placeholder="Full Name" required />
+        <input type="text" id="newEmail" placeholder="Email" required />
+        <input type="text" id="newPhone" placeholder="Phone Number" />
+        <input type="text" id="newAddress" placeholder="Address" />
+        <button type="submit">Add Student</button>
+      </form>
+    </div>
+
+    <!-- Student Table -->
+    <div class="card">
+      <h3>All Students</h3>
+      <table id="studentTable">
+        <thead>
+          <tr>
+            <th>Photo</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>DOB</th>
+            <th>Gender</th>
+            <th>Dept</th>
+            <th>Course</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <!-- Post Notice -->
+    <div class="card">
+      <h3>Post New Notice</h3>
+      <input type="text" id="noticeTitle" placeholder="Title" />
+      <textarea id="noticeMsg" placeholder="Message" rows="3"></textarea>
+      <button onclick="postNotice()">Post Notice</button>
+    </div>
+
+    <!-- Leave Requests -->
+    <div class="card">
+      <h3>Leave Requests</h3>
+      <div id="leaveContainer">Loading...</div>
+    </div>
+
+    <!-- Update Result -->
+    <div class="card">
+      <h3>Update Student Result</h3>
+      <input type="text" id="resId" placeholder="Student Email" />
+      <input type="text" id="resSubject" placeholder="Subject" />
+      <input type="number" id="resMarks" placeholder="Marks" />
+      <button onclick="updateResult()">Update Result</button>
+    </div>
+
+    <!-- Student Marks -->
+    <div class="card">
+      <h3>Student Marks</h3>
+      <div id="marksViewer">Loading...</div>
+    </div>
+
+    <!-- Student Profiles (Grouped by Year) -->
+    <div class="card">
+      <h3>Student Profiles (Grouped by Year)</h3>
+      <div id="profileGroups">Loading...</div>
+    </div>
+
+  </div>
+
+  <footer>© All Rights Reserved — Gauri Kakad & Harsh Jadhao</footer>
+
+  <script>
+    function logout() {
+      localStorage.clear();
+      window.location.href = "index.html";
+    }
+
+    async function fetchStudents() {
+      const res = await fetch("/api/admin/students");
+      const students = await res.json();
+      const tbody = document.querySelector("#studentTable tbody");
+      tbody.innerHTML = "";
+      students.forEach(s => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${s.photo ? `<img src="${s.photo}" class="profile-pic">` : '-'}</td>
+            <td>${s.fullName || ''}</td>
+            <td>${s.email}</td>
+            <td>${s.dob || ''}</td>
+            <td>${s.gender || ''}</td>
+            <td>${s.department || ''}</td>
+            <td>${s.course || ''}</td>
+            <td>
+              <button class="action-btn" onclick="deleteStudent('${s.id}')">Delete</button>
+              <button class="action-btn" onclick='editStudent(${JSON.stringify(s)})'>Edit</button>
+            </td>
+          </tr>`;
+      });
+    }
+
+    function deleteStudent(id) {
+      fetch(`/api/admin/students/${id}`, { method: "DELETE" })
+        .then(res => res.json())
+        .then(() => {
+          alert("Deleted");
+          fetchStudents();
+        });
+    }
+
+    function editStudent(student) {
+      const editable = prompt("Update data (JSON):", JSON.stringify(student, null, 2));
+      if (!editable) return;
+      const parsed = JSON.parse(editable);
+      fetch(`/api/admin/students/${student.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(parsed)
+      }).then(res => res.json()).then(data => {
+        alert(data.message);
+        fetchStudents();
+      });
+    }
+
+    document.getElementById("addStudentForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = {
+        fullName: document.getElementById("newName").value,
+        email: document.getElementById("newEmail").value,
+        phone: document.getElementById("newPhone").value,
+        address: document.getElementById("newAddress").value
+      };
+      const res = await fetch("/api/admin/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      const d = await res.json();
+      alert(d.message);
+      fetchStudents();
+      e.target.reset();
+    });
+
+    function postNotice() {
+      const title = document.getElementById("noticeTitle").value;
+      const message = document.getElementById("noticeMsg").value;
+      const date = new Date().toLocaleDateString();
+      fetch("/api/admin/notices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, message, date })
+      })
+        .then(res => res.json())
+        .then(data => {
+          alert("Notice Posted");
+        });
+    }
+
+    function updateResult() {
+      const studentId = document.getElementById("resId").value;
+      const subject = document.getElementById("resSubject").value;
+      const marks = document.getElementById("resMarks").value;
+      fetch(`/api/admin/results/${studentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [subject]: marks })
+      })
+        .then(res => res.json())
+        .then(data => alert(data.message));
+    }
+
+    function loadLeaves() {
+      fetch("/api/admin/leaves")
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById("leaveContainer");
+          container.innerHTML = "";
+          data.forEach(req => {
+            container.innerHTML += `
+              <div style="border:1px solid #ccc;padding:10px;margin:10px 0;">
+                <strong>${req.name}</strong> (${req.studentId})<br>
+                ${req.fromDate} to ${req.toDate} — ${req.reason}<br>
+                <b>Status:</b> <span id="status-${req.id}">${req.status}</span><br>
+                <button onclick="updateLeaveStatus(${req.id}, 'Approved')">Approve</button>
+                <button onclick="updateLeaveStatus(${req.id}, 'Rejected')">Reject</button>
+              </div>`;
+          });
+        });
+    }
+
+    function updateLeaveStatus(id, status) {
+      fetch(`/api/admin/leaves/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      })
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById(`status-${id}`).innerText = status;
+          alert(data.message);
+        });
+    }
+
+    async function loadAllResults() {
+      const res = await fetch("/api/admin/results");
+      const data = await res.json();
+      const container = document.getElementById("marksViewer");
+      container.innerHTML = "";
+
+      data.forEach(entry => {
+        container.innerHTML += `<h4>${entry.studentId}</h4>`;
+        for (let sub in entry.marks) {
+          container.innerHTML += `<p>${sub}: ${entry.marks[sub]}</p>`;
+        }
+        container.innerHTML += "<hr>";
+      });
+    }
+
+    async function loadStudentProfiles() {
+      const res = await fetch("/api/admin/student-profiles");
+      const data = await res.json();
+      const container = document.getElementById("profileGroups");
+      container.innerHTML = "";
+
+      for (let year in data) {
+        container.innerHTML += `<h4>${year}</h4>`;
+        container.innerHTML += `
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Name</th><th>Email</th><th>DOB</th><th>Phone</th><th>Address</th></tr>
+            </thead>
+            <tbody>
+              ${data[year].map(s => `
+                <tr>
+                  <td>${s.id}</td>
+                  <td>${s.fullName || ''}</td>
+                  <td>${s.email}</td>
+                  <td>${s.dob || '-'}</td>
+                  <td>${s.phone || '-'}</td>
+                  <td>${s.address || '-'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table><br>`;
+      }
+    }
+
+    fetchStudents();
+    loadLeaves();
+    loadAllResults();
+    loadStudentProfiles();
+  </script>
+</body>
+</html>
