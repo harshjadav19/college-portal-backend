@@ -4,7 +4,7 @@ const path = require('path');
 const cors = require('cors');
 const multer = require('multer');
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
@@ -252,5 +252,5 @@ app.get('/api/admin/student-profiles', (req, res) => {
 
 // Server Start
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

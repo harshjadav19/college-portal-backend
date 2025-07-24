@@ -146,7 +146,7 @@
     }
 
     // Load Notices
-    fetch("/api/notices")
+    fetch("https://your-backend-url/api/notices")
       .then(res => res.json())
       .then(data => {
         const container = document.getElementById("notice-container");
@@ -156,14 +156,14 @@
         });
       });
 
-    fetch(`/api/student/${email}/attendance`)
+    fetch(`	https://your-backend-url/api/student/${email}/attendance`)
       .then(res => res.json())
       .then(data => {
         document.getElementById("attendanceInfo").innerText =
           `Present: ${data.daysPresent} / ${data.totalDays} (${data.attendance})`;
       });
 
-    fetch(`/api/student/${email}/timetable`)
+    fetch(`https://your-backend-url/api/student/${email}/timetable`)
       .then(res => res.json())
       .then(data => {
         let html = "";
@@ -173,7 +173,7 @@
         document.getElementById("timetableInfo").innerHTML = html;
       });
 
-    fetch(`/api/student/${email}/fees`)
+    fetch(`	https://your-backend-url/api/student/${email}/fees`)
       .then(res => res.json())
       .then(data => {
         document.getElementById("feesInfo").innerText =
@@ -198,7 +198,7 @@
         formData.append("photo", document.getElementById("photo").files[0]);
       }
 
-      const res = await fetch(`/api/student/${email}/profile`, {
+      const res = await fetch(`	https://your-backend-url/api/student/${email}/profile`, {
         method: "POST",
         body: formData
       });
@@ -211,7 +211,7 @@
       e.preventDefault();
       const subject = document.getElementById("subject").value;
       const marks = document.getElementById("marks").value;
-      const res = await fetch(`/api/student/${email}/results`, {
+      const res = await fetch(`https://your-backend-url/api/student/${email}/results`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [subject]: marks })
@@ -225,7 +225,7 @@
       e.preventDefault();
       const title = document.getElementById("assignmentTitle").value;
       const link = document.getElementById("assignmentLink").value;
-      const res = await fetch(`/api/student/${email}/assignment`, {
+      const res = await fetch(`	https://your-backend-url/api/student/${email}/assignment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, link })
@@ -242,7 +242,7 @@
         toDate: document.getElementById("toDate").value,
         reason: document.getElementById("leaveReason").value
       };
-      const res = await fetch(`/api/student/${email}/leave`, {
+      const res = await fetch(`https://your-backend-url/api/student/${email}/leave`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)

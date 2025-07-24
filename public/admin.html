@@ -140,7 +140,7 @@
     }
 
     async function fetchStudents() {
-      const res = await fetch("/api/admin/students");
+      const res = await fetch("	https://your-backend-url/api/admin/students");
       const students = await res.json();
       const tbody = document.querySelector("#studentTable tbody");
       tbody.innerHTML = "";
@@ -163,7 +163,7 @@
     }
 
     function deleteStudent(id) {
-      fetch(`/api/admin/students/${id}`, { method: "DELETE" })
+      fetch(`https://your-backend-url/api/admin/students/${id}`, { method: "DELETE" })
         .then(res => res.json())
         .then(() => {
           alert("Deleted");
@@ -208,7 +208,7 @@
       const title = document.getElementById("noticeTitle").value;
       const message = document.getElementById("noticeMsg").value;
       const date = new Date().toLocaleDateString();
-      fetch("/api/admin/notices", {
+      fetch("https://your-backend-url/api/admin/notices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, message, date })
@@ -223,7 +223,7 @@
       const studentId = document.getElementById("resId").value;
       const subject = document.getElementById("resSubject").value;
       const marks = document.getElementById("resMarks").value;
-      fetch(`/api/admin/results/${studentId}`, {
+      fetch(`https://your-backend-url/api/admin/results/${studentId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [subject]: marks })
@@ -252,7 +252,7 @@
     }
 
     function updateLeaveStatus(id, status) {
-      fetch(`/api/admin/leaves/${id}`, {
+      fetch(`https://your-backend-url/api/admin/leaves/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status })
@@ -280,7 +280,7 @@
     }
 
     async function loadStudentProfiles() {
-      const res = await fetch("/api/admin/student-profiles");
+      const res = await fetch("https://your-backend-url/api/admin/student-profiles");
       const data = await res.json();
       const container = document.getElementById("profileGroups");
       container.innerHTML = "";
