@@ -1,6 +1,6 @@
 // ✅ Render-compatible version of auth.js
 
-const BASE_URL = "https://your-backend-name.onrender.com"; // 🔔 Replace this before going live
+const BASE_URL = "https://college-portal-backend-p1xm.onrender.com"; // 🔔 Replace this before going live
 
 // ✅ Generate CAPTCHA
 function generateCaptcha() {

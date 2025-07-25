@@ -4,46 +4,159 @@
   <meta charset="UTF-8" />
   <title>Student Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Chart.js, jsPDF, html2canvas -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-    body { margin: 0; background: #f7f9fc; color: #333; }
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    body {
+      margin: 0;
+      background: #f0f4f8;
+      color: #333;
+      scroll-behavior: smooth;
+    }
     header {
       background: linear-gradient(to right, #4f46e5, #3b82f6);
-      color: white; padding: 20px; text-align: center;
-      position: relative; font-size: 24px; font-weight: bold;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     .logout-btn {
-      position: absolute; right: 20px; top: 20px;
-      background: #ef4444; color: white; border: none;
-      padding: 8px 16px; border-radius: 8px; cursor: pointer;
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
     }
-    .logout-btn:hover { background: #dc2626; }
+    .logout-btn:hover {
+      background: #dc2626;
+    }
     .container {
-      max-width: 1200px; margin: 30px auto;
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 20px; padding: 0 20px;
+      max-width: 1200px;
+      margin: 30px auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+      padding: 0 20px;
     }
     .card {
-      background: white; padding: 20px;
-      border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transition: transform 0.3s;
+      animation: fadeIn 0.6s ease;
     }
-    .card h3 { color: #4f46e5; margin-bottom: 10px; }
-    .card form { display: flex; flex-direction: column; }
+    .card:hover {
+      transform: scale(1.02);
+    }
+    .card h3 {
+      color: #4f46e5;
+      margin-bottom: 10px;
+    }
+    .card form {
+      display: flex;
+      flex-direction: column;
+    }
     .card input, .card select, .card textarea {
-      padding: 8px 10px; margin-bottom: 10px;
-      border: 1px solid #ccc; border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
     }
     .card button {
-      padding: 10px; background: #4f46e5; color: white;
-      border: none; border-radius: 6px; cursor: pointer;
+      padding: 10px;
+      background: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
     }
-    .card button:hover { background: #3b44cc; }
+    .card button:hover {
+      background: #3b44cc;
+    }
     .profile-img {
-      max-width: 100px; border-radius: 50%; margin-bottom: 10px;
+      max-width: 100px;
+      border-radius: 50%;
+      margin-bottom: 10px;
     }
     footer {
-      text-align: center; margin-top: 40px; padding: 15px;
-      font-size: 14px; background: #e0e7ff; color: #333;
+      text-align: center;
+      margin-top: 40px;
+      padding: 15px;
+      font-size: 14px;
+      background: #e0e7ff;
+      color: #333;
+    }
+    .action-btns {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .action-btns button {
+      flex: 1;
+      background: #10b981;
+    }
+    .action-btns button:hover {
+      background: #059669;
+    }
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    /* Floating Chatbot Button */
+    .chatbot-button {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 26px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      cursor: pointer;
+      transition: background 0.3s ease;
+      z-index: 1000;
+    }
+    .chatbot-button:hover {
+      background: #3730a3;
+    }
+    #examModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+    #examModal .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 700px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
     }
   </style>
 </head>
@@ -55,14 +168,113 @@
   </header>
 
   <div class="container">
-    <!-- All cards same as before -->
-    <!-- ... skipped for brevity ... -->
+    <!-- Original student cards (profile, marks, assignments, etc.) remain intact -->
+    <!-- Profile Card -->
+    <div class="card">
+      <h3>Student Profile</h3>
+      <form id="profileForm" enctype="multipart/form-data">
+        <input type="text" id="fullName" placeholder="Full Name" />
+        <input type="text" id="phone" placeholder="Phone" />
+        <input type="date" id="dob" />
+        <select id="gender">
+          <option value="">Select Gender</option>
+          <option>Male</option><option>Female</option><option>Other</option>
+        </select>
+        <input type="text" id="department" placeholder="Department" />
+        <input type="text" id="course" placeholder="Course" />
+        <input type="text" id="nationality" placeholder="Nationality" />
+        <input type="text" id="bloodGroup" placeholder="Blood Group" />
+        <input type="text" id="emergencyContact" placeholder="Emergency Contact" />
+        <textarea id="address" placeholder="Address"></textarea>
+        <input type="email" id="emailDisplay" disabled />
+        <input type="file" id="photo" accept="image/*" />
+        <img id="profilePicPreview" class="profile-img" style="display:none;" />
+        <button type="submit">Save Profile</button>
+      </form>
+      <div class="action-btns">
+        <button onclick="downloadProfilePDF()">Download Profile PDF</button>
+      </div>
+    </div>
+
+    <!-- Marks Card -->
+    <div class="card">
+      <h3>Exam Results</h3>
+      <form id="resultForm">
+        <input type="text" id="subject" placeholder="Subject" />
+        <input type="number" id="marks" placeholder="Marks" />
+        <button type="submit">Save Marks</button>
+      </form>
+      <canvas id="marksChart" height="180"></canvas>
+    </div>
+
+    <!-- Attendance Card -->
+    <div class="card">
+      <h3>Attendance</h3>
+      <p id="attendanceInfo">Loading...</p>
+    </div>
+
+    <!-- Timetable Card -->
+    <div class="card">
+      <h3>Timetable</h3>
+      <div id="timetableInfo">Loading...</div>
+    </div>
+
+    <!-- Fees Card -->
+    <div class="card">
+      <h3>Fees</h3>
+      <p id="feesInfo">Loading...</p>
+    </div>
+
+    <!-- Assignment Card -->
+    <div class="card">
+      <h3>Assignments</h3>
+      <form id="assignmentForm">
+        <input type="text" id="assignmentTitle" placeholder="Title" />
+        <input type="url" id="assignmentLink" placeholder="Link" />
+        <button type="submit">Submit Assignment</button>
+      </form>
+    </div>
+
+    <!-- Leave Application Card -->
+    <div class="card">
+      <h3>Apply Leave</h3>
+      <form id="leaveForm">
+        <input type="text" id="leaveName" placeholder="Your Name" />
+        <input type="date" id="fromDate" />
+        <input type="date" id="toDate" />
+        <textarea id="leaveReason" placeholder="Reason"></textarea>
+        <button type="submit">Submit Leave</button>
+      </form>
+    </div>
+
+    <!-- Notices -->
+    <div class="card">
+      <h3>Notices</h3>
+      <div id="notice-container">Loading...</div>
+    </div>
+
   </div>
 
   <footer>© All Rights Reserved — Gauri Kakad & Harsh Jadhao</footer>
 
+  <!-- Exam Calendar Modal -->
+  <div id="examModal">
+    <div class="modal-content">
+      <h3>📅 Upcoming Exams</h3>
+      <ul>
+        <li>12 Aug — Data Structures</li>
+        <li>15 Aug — DBMS</li>
+        <li>18 Aug — Web Tech</li>
+      </ul>
+      <button onclick="document.getElementById('examModal').style.display='none'">Close</button>
+    </div>
+  </div>
+
+  <!-- Chatbot FAB -->
+  <button class="chatbot-button" onclick="window.open('https://chat.openai.com', '_blank')">🤖</button>
+
   <script>
-    const BASE_URL = "https://your-backend-name.onrender.com"; // 🔔 Replace before deployment
+    const BASE_URL = "https://college-portal-backend-p1xm.onrender.com";
     const email = localStorage.getItem("userEmail");
 
     function logout() {
@@ -71,7 +283,6 @@
       window.location.href = "index.html";
     }
 
-    // Load Notices
     fetch(`${BASE_URL}/api/notices`)
       .then(res => res.json())
       .then(data => {
@@ -85,8 +296,7 @@
     fetch(`${BASE_URL}/api/student/${email}/attendance`)
       .then(res => res.json())
       .then(data => {
-        document.getElementById("attendanceInfo").innerText =
-          `Present: ${data.daysPresent} / ${data.totalDays} (${data.attendance})`;
+        document.getElementById("attendanceInfo").innerText = `Present: ${data.daysPresent} / ${data.totalDays} (${data.attendance})`;
       });
 
     fetch(`${BASE_URL}/api/student/${email}/timetable`)
@@ -102,9 +312,9 @@
     fetch(`${BASE_URL}/api/student/${email}/fees`)
       .then(res => res.json())
       .then(data => {
-        document.getElementById("feesInfo").innerText =
-          `Total: ₹${data.total}, Paid: ₹${data.paid}, Pending: ₹${data.pending}`;
+        document.getElementById("feesInfo").innerText = `Total: ₹${data.total}, Paid: ₹${data.paid}, Pending: ₹${data.pending}`;
       });
+
     document.getElementById("profileForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const formData = new FormData();
@@ -201,11 +411,26 @@
       const res = await fetch(`${BASE_URL}/api/student/${email}/results`);
       if (!res.ok) return;
       const data = await res.json();
-      const card = document.querySelector("#resultForm").parentElement;
-      card.innerHTML += "<h4>Saved Marks:</h4>";
-      for (let sub in data.marks) {
-        card.innerHTML += `<p>${sub}: ${data.marks[sub]}</p>`;
-      }
+      const ctx = document.getElementById("marksChart").getContext("2d");
+      const subjects = Object.keys(data.marks);
+      const scores = Object.values(data.marks);
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: subjects,
+          datasets: [{ label: "Marks", data: scores, backgroundColor: "#4f46e5" }]
+        },
+        options: { responsive: true }
+      });
+    }
+
+    function downloadProfilePDF() {
+      html2canvas(document.getElementById("profileForm")).then(canvas => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jspdf.jsPDF();
+        pdf.addImage(imgData, "PNG", 10, 10);
+        pdf.save("profile.pdf");
+      });
     }
 
     loadProfile();

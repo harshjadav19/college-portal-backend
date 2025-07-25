@@ -1,5 +1,5 @@
 // 🌐 Set backend URL for deployed environment
-const BASE_URL = "https://your-backend-name.onrender.com"; // 🔔 Replace this before deploying
+const BASE_URL = "https://college-portal-backend-p1xm.onrender.com"; // 🔔 Replace this before deploying
 
 // ✅ Logout Function
 function logout() {
