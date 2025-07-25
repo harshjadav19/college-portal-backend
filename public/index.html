@@ -88,6 +88,8 @@
   <footer>© All Rights Reserved to Gauri Kakad & Harsh Jadhao</footer>
 
   <script>
+    const BASE_URL = "https://your-backend-name.onrender.com"; // 🔔 Replace before deployment
+
     document.getElementById("loginForm").addEventListener("submit", async function (e) {
       e.preventDefault();
       const email = document.getElementById("email").value.trim();
@@ -100,7 +102,7 @@
       }
 
       try {
-        const res = await fetch("https://your-backend-url/api/login", {
+        const res = await fetch(`${BASE_URL}/api/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
@@ -108,9 +110,10 @@
         const data = await res.json();
         if (res.ok) {
           localStorage.setItem("userRole", data.role);
+          localStorage.setItem("userEmail", data.email);
           window.location.href = data.role === "admin" ? "admin.html" : "student.html";
         } else {
-          message.innerText = "❌ " + data.error;
+          message.innerText = "❌ " + (data.message || "Login failed.");
         }
       } catch {
         message.innerText = "❌ Server error. Try again.";

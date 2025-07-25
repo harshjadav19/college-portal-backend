@@ -55,15 +55,12 @@
   </style>
 </head>
 <body>
-
   <header>
     Admin Dashboard
     <button class="logout-btn" onclick="logout()">Logout</button>
   </header>
 
   <div class="container">
-
-    <!-- Add Student -->
     <div class="card">
       <h3>Add Student</h3>
       <form id="addStudentForm">
@@ -75,7 +72,6 @@
       </form>
     </div>
 
-    <!-- Student Table -->
     <div class="card">
       <h3>All Students</h3>
       <table id="studentTable">
@@ -94,7 +90,7 @@
         <tbody></tbody>
       </table>
     </div>
-    <!-- Post Notice -->
+
     <div class="card">
       <h3>Post New Notice</h3>
       <input type="text" id="noticeTitle" placeholder="Title" />
@@ -102,13 +98,11 @@
       <button onclick="postNotice()">Post Notice</button>
     </div>
 
-    <!-- Leave Requests -->
     <div class="card">
       <h3>Leave Requests</h3>
       <div id="leaveContainer">Loading...</div>
     </div>
 
-    <!-- Update Result -->
     <div class="card">
       <h3>Update Student Result</h3>
       <input type="text" id="resId" placeholder="Student Email" />
@@ -117,30 +111,28 @@
       <button onclick="updateResult()">Update Result</button>
     </div>
 
-    <!-- Student Marks -->
     <div class="card">
       <h3>Student Marks</h3>
       <div id="marksViewer">Loading...</div>
     </div>
 
-    <!-- Student Profiles (Grouped by Year) -->
     <div class="card">
       <h3>Student Profiles (Grouped by Year)</h3>
       <div id="profileGroups">Loading...</div>
     </div>
-
   </div>
 
   <footer>© All Rights Reserved — Gauri Kakad & Harsh Jadhao</footer>
 
   <script>
+    const BASE_URL = "https://your-backend-name.onrender.com"; // 🔔 Replace before deploying
+
     function logout() {
       localStorage.clear();
       window.location.href = "index.html";
     }
-
     async function fetchStudents() {
-      const res = await fetch("	https://your-backend-url/api/admin/students");
+      const res = await fetch(`${BASE_URL}/api/admin/students`);
       const students = await res.json();
       const tbody = document.querySelector("#studentTable tbody");
       tbody.innerHTML = "";
@@ -163,7 +155,7 @@
     }
 
     function deleteStudent(id) {
-      fetch(`https://your-backend-url/api/admin/students/${id}`, { method: "DELETE" })
+      fetch(`${BASE_URL}/api/admin/students/${id}`, { method: "DELETE" })
         .then(res => res.json())
         .then(() => {
           alert("Deleted");
@@ -175,7 +167,7 @@
       const editable = prompt("Update data (JSON):", JSON.stringify(student, null, 2));
       if (!editable) return;
       const parsed = JSON.parse(editable);
-      fetch(`/api/admin/students/${student.id}`, {
+      fetch(`${BASE_URL}/api/admin/students/${student.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(parsed)
@@ -193,7 +185,7 @@
         phone: document.getElementById("newPhone").value,
         address: document.getElementById("newAddress").value
       };
-      const res = await fetch("/api/admin/students", {
+      const res = await fetch(`${BASE_URL}/api/admin/students`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
@@ -208,7 +200,7 @@
       const title = document.getElementById("noticeTitle").value;
       const message = document.getElementById("noticeMsg").value;
       const date = new Date().toLocaleDateString();
-      fetch("https://your-backend-url/api/admin/notices", {
+      fetch(`${BASE_URL}/api/admin/notices`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, message, date })
@@ -223,7 +215,7 @@
       const studentId = document.getElementById("resId").value;
       const subject = document.getElementById("resSubject").value;
       const marks = document.getElementById("resMarks").value;
-      fetch(`https://your-backend-url/api/admin/results/${studentId}`, {
+      fetch(`${BASE_URL}/api/admin/results/${studentId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [subject]: marks })
@@ -233,7 +225,7 @@
     }
 
     function loadLeaves() {
-      fetch("/api/admin/leaves")
+      fetch(`${BASE_URL}/api/admin/leaves`)
         .then(res => res.json())
         .then(data => {
           const container = document.getElementById("leaveContainer");
@@ -252,7 +244,7 @@
     }
 
     function updateLeaveStatus(id, status) {
-      fetch(`https://your-backend-url/api/admin/leaves/${id}`, {
+      fetch(`${BASE_URL}/api/admin/leaves/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status })
@@ -265,7 +257,7 @@
     }
 
     async function loadAllResults() {
-      const res = await fetch("/api/admin/results");
+      const res = await fetch(`${BASE_URL}/api/admin/results`);
       const data = await res.json();
       const container = document.getElementById("marksViewer");
       container.innerHTML = "";
@@ -280,7 +272,7 @@
     }
 
     async function loadStudentProfiles() {
-      const res = await fetch("https://your-backend-url/api/admin/student-profiles");
+      const res = await fetch(`${BASE_URL}/api/admin/student-profiles`);
       const data = await res.json();
       const container = document.getElementById("profileGroups");
       container.innerHTML = "";

@@ -1,3 +1,6 @@
+// 🌐 Set backend URL for deployed environment
+const BASE_URL = "https://your-backend-name.onrender.com"; // 🔔 Replace this before deploying
+
 // ✅ Logout Function
 function logout() {
   localStorage.removeItem("userRole");
@@ -7,7 +10,7 @@ function logout() {
 
 // 📢 Load Notices to a container
 function loadNotices() {
-  fetch("/api/notices")
+  fetch(`${BASE_URL}/api/notices`)
     .then(res => res.json())
     .then(data => {
       const container = document.getElementById("notice-container");
@@ -34,7 +37,7 @@ function loadNotices() {
 
 // 📝 Load leave requests for admin
 function loadLeaveRequests() {
-  fetch("/api/admin/leaves")
+  fetch(`${BASE_URL}/api/admin/leaves`)
     .then(res => res.json())
     .then(data => {
       const container = document.getElementById("leave-container");

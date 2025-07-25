@@ -1,3 +1,7 @@
+// ✅ Render-compatible version of auth.js
+
+const BASE_URL = "https://your-backend-name.onrender.com"; // 🔔 Replace this before going live
+
 // ✅ Generate CAPTCHA
 function generateCaptcha() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -38,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        const res = await fetch("/api/register", {
+        const res = await fetch(`${BASE_URL}/api/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password, role })
